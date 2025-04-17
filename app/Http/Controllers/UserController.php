@@ -257,13 +257,13 @@ class UserController extends Controller
 			$sendMail = new SendMail();
 			$sendMail->sendMail003($recUser->email, Auth::user());
 			// Firebase send notify
-			// $notification = new Notification();
-			// $notification->user_id = $param['friend_id'];
-			// $notification->actor_id = Auth::id();
-			// $notification->content = "「'" . Auth::user()->name . "'」さんがあなたに友達リクエストを送信しました。";
-			// $notification->is_view = Notification::UNVIEWED;
-			// $notification->status = Notification::STATUS_WAIT;
-			// $notification->save();
+			Notification::create([
+				'user_id' => $param['friend_id'],
+				'actor_id' => Auth::id(),
+				'content' => "「'" . Auth::user()->name . "'」さんがあなたに友達リクエストを送信しました。",
+				'is_view' => Notification::UNVIEWED,
+				'status' => Notification::STATUS_WAIT
+			]);
 			return $this->apiResponse->success();
 		} catch (\Exception $e) {
 			DB::rollBack();
