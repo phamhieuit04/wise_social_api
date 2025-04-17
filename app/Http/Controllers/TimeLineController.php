@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiResponse;
+use DB;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\User;
@@ -37,7 +38,10 @@ class TimeLineController extends Controller
 				return $authSkillQuery->select('id', 'skill', 'user_id');
 			},
 			'likes',
-			'comments'
+			'comments',
+			'favorites' => function ($favoriteQuery) {
+				return $favoriteQuery->where('user_id', Auth::user()->id)->get();
+			}
 		])
 			->select(
 				'posts.id',
@@ -103,5 +107,36 @@ class TimeLineController extends Controller
 			);
 		}
 		return $this->apiResponse->success($posts);
+	}
+
+	public function addFavorite(Request $request)
+	{
+		$param = $request->all();
+		try {
+			$now = Carbon::now();
+			DB::table('favorites')->insert([
+				'user_id' => Auth::user()->id,
+				'post_id' => $param['post_id'],
+				'created_at' => $now,
+				'updated_at' => $now,
+			]);
+			return $this->apiResponse->success($param['post_id']);
+		} catch (\Exception $e) {
+			return $this->apiResponse->InternalServerError();
+		}
+	}
+
+	public function removeFavorite(Request $request)
+	{
+		$param = $request->all();
+		try {
+			DB::table('favorites')
+				->where('user_id', Auth::user()->id)
+				->where('post_id', $param['post_id'])
+				->delete();
+			return $this->apiResponse->success($param['post_id']);
+		} catch (\Exception $e) {
+			return $this->apiResponse->InternalServerError();
+		}
 	}
 }
