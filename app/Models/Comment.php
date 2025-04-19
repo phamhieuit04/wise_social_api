@@ -7,15 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
-    use HasFactory;
+	use HasFactory;
 
-    protected $table = "comments";
+	protected $table = "comments";
 
-    protected $fillable = [
-        "user_id", "post_id", "comment", "parent_id"
-    ];
+	protected $fillable = [
+		"user_id",
+		"post_id",
+		"comment",
+		"parent_id"
+	];
 
-    public function sbviu() {
-        echo " kfhiohef";
-    }
+	public function child()
+	{
+		return $this->hasMany(Comment::class, 'parent_id', 'id');
+	}
+
+	public function author()
+	{
+		return $this->hasOne(User::class, 'id', 'user_id');
+	}
 }

@@ -163,4 +163,53 @@ class TimeLineController extends Controller
 			return $this->apiResponse->InternalServerError();
 		}
 	}
+
+	public function showComment(Request $request)
+	{
+		$param = $request->all();
+		$comments = Comment::join(
+			'users',
+			'comments.user_id',
+			'users.id'
+		)->with('child', 'child.author')->select(
+				'users.id as user_id',
+				'users.name',
+				'users.email',
+				'users.avatar',
+				'comments.id',
+				'comments.comment',
+				'comments.post_id',
+				'comments.parent_id',
+				'comments.created_at'
+			)->where('comments.parent_id', 0)
+			->where('comments.post_id', $param['post_id'])
+			->orderBy('comments.id', 'DESC')
+			->skip($param['offset'])->take($param['limit'])
+			->get();
+		if (count($comments) > 0) {
+			foreach ($comments as $comment) {
+				if (!is_null($comment->avatar)) {
+					$avatarTmp = $comment->avatar;
+					$comment->_avatar = env('APP_URL') . '/avatars/'
+						. explode('@', $comment->email)[0] . '/'
+						. $avatarTmp;
+				} else {
+					$comment->_avatar = null;
+				}
+				if (count($comment->child) > 0) {
+					foreach ($comment->child as $cmtChild) {
+						if (!is_null($cmtChild->author->avatar)) {
+							$avatarTmp = $cmtChild->author->avatar;
+							$cmtChild->author->_avatar = env('APP_URL') . '/avatars/'
+								. explode('@', $cmtChild->author->email)[0] . '/'
+								. $avatarTmp;
+						} else {
+							$cmtChild->author->_avatar = null;
+						}
+					}
+				}
+			}
+		}
+		return $this->apiResponse->success($comments);
+	}
 }
