@@ -139,4 +139,28 @@ class TimeLineController extends Controller
 			return $this->apiResponse->InternalServerError();
 		}
 	}
+
+	public function like(Request $request)
+	{
+		$param = $request->all();
+		try {
+			$now = Carbon::now();
+			if ($param['action'] == 'like') {
+				DB::table('likes')->insert([
+					'user_id' => Auth::user()->id,
+					'post_id' => $param['post_id'],
+					'created_at' => $now,
+					'updated_at' => $now
+				]);
+			} else {
+				DB::table('likes')
+					->where('user_id', Auth::user()->id)
+					->where('post_id', $param['post_id'])
+					->delete();
+			}
+			return $this->apiResponse->success($param['post_id']);
+		} catch (\Exception $e) {
+			return $this->apiResponse->InternalServerError();
+		}
+	}
 }
