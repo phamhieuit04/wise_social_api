@@ -208,6 +208,8 @@ class TimeLineController extends Controller
 						}
 					}
 				}
+				$created_at_tmp = Carbon::create($comment->created_at);
+				$comment->_created_at = $created_at_tmp->format('Y-m-d h:i');
 			}
 		}
 		return $this->apiResponse->success($comments);
