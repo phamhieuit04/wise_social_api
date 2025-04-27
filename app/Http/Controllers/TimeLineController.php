@@ -212,4 +212,39 @@ class TimeLineController extends Controller
 		}
 		return $this->apiResponse->success($comments);
 	}
+
+	public function postComment(Request $request)
+	{
+		$params = $request->all();
+		$comment = Comment::create([
+			'user_id' => Auth::user()->id,
+			'post_id' => $params['post_id'],
+			'comment' => $params['comment'],
+			'parent_id' => $params['parent_id']
+		]);
+
+		$avatar = null;
+		if (!is_null(Auth::user()->avatar)) {
+			$avatarTmp = Auth::user()->avatar;
+			$avatar = env('APP_URL') . '/avatars/'
+				. explode('@', Auth::user()->email)[0] . '/'
+				. $avatarTmp;
+		}
+
+		$timeNow = Carbon::now();
+		$responseData = [
+			'id' => $comment->id,
+			'comment' => $comment->comment,
+			'avatar' => $avatar,
+			'name' => Auth::user()->name,
+			'created_at' => $timeNow,
+			'updated_at' => $timeNow,
+			'parent_id' => $params['parent_id'],
+			'child' => null,
+			'post_id' => $params['post_id'],
+			'type' => 'comment',
+			'action' => 'send_comment'
+		];
+		return $this->apiResponse->success($responseData);
+	}
 }

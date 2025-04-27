@@ -42,6 +42,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 	Route::get('/remove-favorites', [\App\Http\Controllers\TimeLineController::class, 'removeFavorite']);
 	Route::get('/like', [App\Http\Controllers\TimeLineController::class, 'like']);
 	Route::get('list-comment', [App\Http\Controllers\TimeLineController::class, 'showComment']);
+	Route::post('/comment', [App\Http\Controllers\TimeLineController::class, 'postComment']);
 });
 
 Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register']);
