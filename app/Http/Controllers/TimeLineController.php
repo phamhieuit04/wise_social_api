@@ -206,6 +206,8 @@ class TimeLineController extends Controller
 						} else {
 							$cmtChild->author->_avatar = null;
 						}
+						$created_at_child_tmp = Carbon::create($cmtChild->created_at);
+						$cmtChild->_created_at = $created_at_child_tmp->format('Y-m-d h:i');
 					}
 				}
 				$created_at_tmp = Carbon::create($comment->created_at);
