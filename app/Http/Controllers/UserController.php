@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiResponse;
 use App\Helpers\SendMail;
+use App\Models\ChatRoom;
 use App\Models\DeviceToken;
 use App\Models\Follow;
 use App\Models\Friend;
@@ -400,7 +401,7 @@ class UserController extends Controller
 			->get();
 		$messages = Message::where('user_id', $user->id)
 			->orWhere('friend_id', $user->id)
-			->orderBy('created_at', 'desc')
+			->orderBy('created_at', 'asc')
 			->get();
 		foreach ($friends as $friend) {
 			$friend->last_message = "";
@@ -413,6 +414,83 @@ class UserController extends Controller
 			}
 		}
 		return $this->apiResponse->success($friends);
+	}
+
+	public function listMessage(Request $request)
+	{
+		$params = $request->all();
+		$user = Auth::user();
+		$userInRoom = [
+			"[" . $user->id . ", " . $params['friend_id'] . "]",
+			"[" . $params['friend_id'] . ", " . $user->id . "]",
+		];
+		$room = ChatRoom::where('user_id', $userInRoom[0])
+			->orWhere('user_id', $userInRoom[1])
+			->first();
+		$roomId = null;
+		if (is_null($room)) {
+			$createRoom = new ChatRoom();
+			$createRoom->user_id = $userInRoom[0];
+			$createRoom->save();
+			$roomId = $createRoom->id;
+		} else {
+			$roomId = $room->id;
+		}
+		$messages = Message::join('users', 'messages.user_id', 'users.id')
+			->select([
+				'messages.id',
+				'users.name',
+				'users.avatar',
+				'messages.message',
+				'messages.user_id',
+				'messages.friend_id',
+				'messages.is_view'
+			])
+			->where('messages.room_id', $roomId)
+			->orderBy('messages.created_at', 'asc')
+			->get()
+			->map(function ($item) use ($user) {
+				if ($item->user_id == $user->id) {
+					$item->my_message = "me";
+				}
+				if ($item->friend_id == $user->id) {
+					$item->my_message = 'friend';
+				}
+				$item->_created_at = Carbon::create($item->created_at)->format('Y-m-d h:i');
+				return $item;
+			});
+		$response = [
+			'room_id' => $roomId,
+			'messages' => $messages,
+			'user_id' => $user->id,
+		];
+		return $this->apiResponse->success($response);
+	}
+
+	public function sendMessage(Request $request)
+	{
+		$params = $request->all();
+		$message = Message::create([
+			'user_id' => Auth::user()->id,
+			'friend_id' => $params['friend_id'],
+			'message' => $params['message_content'],
+			'room_id' => $params['room_id'],
+			'created_at' => Carbon::now(),
+			'updated_at' => Carbon::now()
+		]);
+		$responseData = [
+			"id" => $message->id,
+			"name" => Auth::user()->name,
+			"avatar" => "user-pro-img.png",
+			"message" => $params['message_content'],
+			"user_id" => Auth::user()->id,
+			"friend_id" => $params['friend_id'],
+			"is_view" => Message::UNVIEW,
+			"created_at" => Carbon::now(),
+			"my_message" => "me",
+			"_created_at" => Carbon::now()->format('Y-m-d h:i:s')
+		];
+		return $this->apiResponse->success($responseData);
 	}
 
 	/**

@@ -9,7 +9,7 @@ class ChatRoom extends Model
 {
 	use HasFactory;
 
-	protected $table = 'chat_room';
+	protected $table = 'chat_rooms';
 
 	protected $fillable = [
 		'id',
