@@ -5,20 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Message extends Model
+class ChatRoom extends Model
 {
-	const VIEWED = 2;
-	const UNVIEW = 1;
-
 	use HasFactory;
 
-	protected $table = "messages";
+	protected $table = 'chat_room';
 
 	protected $fillable = [
-		"user_id",
-		"friend_id",
-		"room_id",
-		"message",
-		"is_view"
+		'id',
+		'user_id'
 	];
+
+	public function messages()
+	{
+		return $this->hasMany(Message::class, 'user_id', 'id');
+	}
 }
