@@ -449,7 +449,7 @@ class UserController extends Controller
 			->where('messages.room_id', $roomId)
 			->orderBy('messages.created_at', 'asc')
 			->get()
-			->map(function ($item) use ($user) {
+			->map(function ($item) use ($user, $roomId) {
 				if ($item->user_id == $user->id) {
 					$item->my_message = "me";
 				}
@@ -457,6 +457,9 @@ class UserController extends Controller
 					$item->my_message = 'friend';
 				}
 				$item->_created_at = Carbon::create($item->created_at)->format('Y-m-d h:i');
+				$item->room_id = $roomId;
+				$item->type = 'message';
+				$item->action = 'join';
 				return $item;
 			});
 		$response = [
@@ -488,7 +491,10 @@ class UserController extends Controller
 			"is_view" => Message::UNVIEW,
 			"created_at" => Carbon::now(),
 			"my_message" => "me",
-			"_created_at" => Carbon::now()->format('Y-m-d h:i:s')
+			"_created_at" => Carbon::now()->format('Y-m-d h:i:s'),
+			"room_id" => $params['room_id'],
+			"type" => "message",
+			"action" => "send_message"
 		];
 		return $this->apiResponse->success($responseData);
 	}
