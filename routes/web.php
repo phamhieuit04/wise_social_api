@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\APIController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +16,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+	return view('welcome');
 });
+
+Route::get('/login', function () {
+	$apiRes = new ApiResponse();
+	return $apiRes->UnAuthorization();
+})->name('login');
 
 Route::get('/un-lock/{hashId}', [APIController::class, 'unlock']);

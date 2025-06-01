@@ -7,11 +7,12 @@ use App\Helpers\SendMail;
 use App\Models\DeviceToken;
 use App\Models\Follow;
 use App\Models\Friend;
+use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Post;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -292,27 +293,12 @@ class UserController extends Controller
 
 	public function mostFollowed(Request $request)
 	{
-		$user = User::select(
+		$user = User::select([
 			'users.id',
 			'users.name',
 			'users.email',
-			'users.avatar',
-			// DB::raw('COUNT(follows.id) as total_follow'),
-			// 'follows.follow_id'
-		)
-			// ->join('follows', 'users.id', 'follows.follow_id')
-			// ->with([
-			//     'experiences' => function ($experienceQuery) {
-			//         return $experienceQuery->select('id', 'user_id', 'title');
-			//     }
-			// ])
-			// ->groupBy(
-			//     'follows.follow_id',
-			//     'users.id',
-			//     'users.name',
-			//     'users.email',
-			//     'users.avatar'
-			// )->orderBy('total_follow', 'DESC')
+			'users.avatar'
+		])
 			->first();
 		$folderAvatar = null;
 		if (!is_null($user->avatar)) {
@@ -401,6 +387,32 @@ class UserController extends Controller
 			$deviceToken->update();
 		}
 		return $this->apiResponse->success($deviceToken);
+	}
+
+	public function listFriend()
+	{
+		$user = Auth::user();
+		$friends = Friend::join('users', 'friends.friend_id', 'users.id')
+			->select(['users.id', 'users.name', 'users.email', 'users.avatar', 'users.online_status'])
+			->where('friends.user_id', $user->id)
+			->where('friends.approved', Friend::APPROVED)
+			->orderBy('friends.created_at', 'desc')
+			->get();
+		$messages = Message::where('user_id', $user->id)
+			->orWhere('friend_id', $user->id)
+			->orderBy('created_at', 'desc')
+			->get();
+		foreach ($friends as $friend) {
+			$friend->last_message = "";
+			foreach ($messages as $message) {
+				if ($friend->id == $message->user_id || $friend->id == $message->friend_id) {
+					$friend->last_message = $message->message;
+					$friend->last_sent = Carbon::create($message->created_at)->diffForHumans();
+					continue;
+				}
+			}
+		}
+		return $this->apiResponse->success($friends);
 	}
 
 	/**
