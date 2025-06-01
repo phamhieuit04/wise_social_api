@@ -15,6 +15,19 @@ namespace App\Models{
 /**
  * 
  *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $messages
+ * @property-read int|null $messages_count
+ * @method static \Illuminate\Database\Eloquent\Builder|ChatRoom newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ChatRoom newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ChatRoom query()
+ */
+	class ChatRoom extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * 
+ *
  * @property int $id
  * @property int $user_id
  * @property int $post_id
@@ -136,7 +149,8 @@ namespace App\Models{
  *
  * @property int $id
  * @property int $user_id
- * @property int $friend_id
+ * @property int|null $friend_id
+ * @property int|null $room_id
  * @property string|null $message
  * @property int $is_view
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -176,7 +190,7 @@ namespace App\Models{
  * @property string|null $content
  * @property string|null $timeline_orders
  * @property int $view_count
- * @property string $images
+ * @property string|null $images
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User|null $author
@@ -231,10 +245,6 @@ namespace App\Models{
  * @property int $login_fail
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Experience> $experiences
  * @property-read int|null $experiences_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Follow> $follower
- * @property-read int|null $follower_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Follow> $follows
- * @property-read int|null $follows_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Skill> $skills
@@ -271,10 +281,10 @@ namespace App\Models{
  *
  * @property int $id
  * @property int $message_id
+ * @property int $post_id
  * @property int $comment_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $post_id
  * @method static \Illuminate\Database\Eloquent\Builder|ViolenceLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ViolenceLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ViolenceLog query()
