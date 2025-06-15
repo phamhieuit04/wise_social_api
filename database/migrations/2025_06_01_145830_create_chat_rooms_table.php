@@ -10,13 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::dropIfExists('messages');
-        Schema::create('messages', function (Blueprint $table) {
-            $table->id();
-            $table->integer('user_id');
-            $table->integer('room_id')->nullable();
-            $table->string('message', 255)->nullable();
-            $table->integer('is_view')->default(1);
+        Schema::create('chat_rooms', function (Blueprint $table) {
+            $table->bigInteger('id');
+            $table->text('user_id')->nullable();
             $table->timestamps();
         });
     }
