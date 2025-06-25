@@ -10,50 +10,27 @@ use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    private $names = [
-        'Hieu Pham',
-        'Minh Ngoc'
-    ];
-
-    private $emails = [
-        'tomnguyenhieu20044@gmail.com',
-        'feyd153@gmail.com'
-    ];
-
-    private $overviews = [
-        'Dev Laravel, Vue...',
-        'Dev Vue, Laravel...'
-    ];
-
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        for ($i = 0; $i < 10; $i++) {
-            DB::table('users')->insert([
-                'name' => fake()->name(),
-                'email' => fake()->unique()->email(),
-                'password' => Hash::make('12345678'),
-                'location' => 'Viet Nam',
-                'city' => 'Ha Noi',
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-        }
-
-        for ($i = 0; $i < 2; $i++) {
-            User::create([
-                'name' => $this->names[$i],
-                'email' => $this->emails[$i],
-                'email_verified_at' => now(),
-                'password' => Hash::make('12345678'),
-                'overview' => $this->overviews[$i],
-                'location' => 'Viet Nam',
-                'city' => 'Ha Noi',
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-        }
+        DB::transaction(function () {
+            for ($i = 0; $i < 10; $i++) {
+                DB::table('users')->insert([
+                    'name' => fake()->name(),
+                    'email' => fake()->unique()->safeEmail(),
+                    'password' => Hash::make('12345678'),
+                    'location' => fake()->country(),
+                    'city' => fake()->city(),
+                    'banner' => fake()->sentence(4),
+                    'overview' => fake()->sentence(),
+                    'online_status' => fake()->numberBetween(1, 2),
+                    'status' => fake()->numberBetween(0, 1),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+        });
     }
 }
