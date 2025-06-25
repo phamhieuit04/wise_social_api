@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('chat_rooms', function (Blueprint $table) {
-            $table->bigInteger('id');
+            $table->id();
             $table->text('user_id')->nullable();
             $table->timestamps();
         });
