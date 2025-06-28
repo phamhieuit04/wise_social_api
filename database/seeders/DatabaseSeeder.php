@@ -22,8 +22,9 @@ class DatabaseSeeder extends Seeder
             FollowSeeder::class,
             FriendSeeder::class,
             ChatRoomSeeder::class,
-            ViolenceWarningSeeder::class
-            // TODO: add notifications, user_views, violence_logs, messages, comments seeder
+            ViolenceWarningSeeder::class,
+            NotificationSeeder::class
+            // TODO: add user_views, violence_logs, messages, comments seeder
         ]);
     }
 }
